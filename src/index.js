@@ -3,7 +3,7 @@ import { findDOMNode } from 'react-dom';
 import shiftBridge, {
   classnames,
   getUniqueClassName,
-} from '@shift-studio/shift-bridge';
+} from '@shift-studio/bridge';
 import get from 'lodash/get';
 import shallowEqual from './helpers/shallow-equal';
 import { useShift, useShiftHooks } from './hooks';

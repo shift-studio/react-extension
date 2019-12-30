@@ -4,7 +4,7 @@ import get from 'lodash/get';
 import shiftBridge, {
   classnames,
   getUniqueClassName,
-} from '@shift-studio/shift-bridge';
+} from '@shift-studio/bridge';
 
 const getShiftSelection = ({ shiftProps }) =>
   (shiftProps && shiftProps.selection) || {};

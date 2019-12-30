@@ -1,5 +1,5 @@
 import React from 'react';
-import shiftBridge from '@shift-studio/shift-bridge';
+import shiftBridge from '@shift-studio/bridge';
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
