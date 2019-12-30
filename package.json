@@ -1,6 +1,6 @@
 {
   "name": "@shift-studio/react-extension",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Shift extension for react components",
   "main": "index.js",
   "scripts": {
