@@ -1,0 +1,9 @@
+dist/
+node_modules/
+.vscode/
+build
+yarn-error.log
+/index.js
+/server.js
+/client.js
+*.LICENSE
