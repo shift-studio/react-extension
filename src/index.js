@@ -136,7 +136,7 @@ export default function shiftExtensionReact(WrappedComponent) {
             [key]: Object.assign({}, val, {
               className: classnames(
                 val.className,
-                getUniqueClassName(this.getShiftSelection(resultProps)),
+                getUniqueClassName(this.getShiftSelection(resultProps), key),
               ),
             }),
           };
