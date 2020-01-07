@@ -71,7 +71,8 @@ export default function shiftExtensionReact(WrappedComponent) {
 
       return (
         (shiftProps && shiftProps.selection) ||
-        get(this.masterProps, ['shiftProps', 'defaultSelection'])
+        get(this.masterProps, ['shiftProps', 'defaultSelection']) ||
+        (shiftProps && shiftProps.defaultSelection)
       );
     }
 
