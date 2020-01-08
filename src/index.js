@@ -45,16 +45,20 @@ export default function shiftExtensionReact(WrappedComponent) {
       }
 
       const { shiftProps } = this.props;
+      const shiftSelection = this.getShiftSelection();
+
+      // update component master props values on bridge component
+      shiftBridge.updateComponentMasterProps(shiftSelection, this.masterProps);
 
       // update component inbound props on ide
       shiftBridge.updateComponentInboundProps(
-        this.getShiftSelection(),
+        shiftSelection,
         shiftProps && shiftProps.flowProps,
       );
 
       // update component state on ide
       if (!shallowEqual(prevState, this.state)) {
-        shiftBridge.updateComponentState(this.getShiftSelection(), this.state);
+        shiftBridge.updateComponentState(shiftSelection, this.state);
       }
     }
 
@@ -63,7 +67,7 @@ export default function shiftExtensionReact(WrappedComponent) {
         super.componentWillUnmount();
       }
 
-      shiftBridge.unregisterComponent(this.getShiftSelection());
+      shiftBridge.unregisterComponent(shiftSelection);
     }
 
     getShiftSelection(props = this.props) {
