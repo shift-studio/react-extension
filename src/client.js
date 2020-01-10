@@ -6,8 +6,8 @@ import ErrorBoundary from './error-boundary';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-export default async function clientEntry(shiftConfig = {}) {
-  const { element, hooks } = shiftConfig;
+export default async function clientEntry(clutchConfig = {}) {
+  const { element, hooks } = clutchConfig;
 
   try {
     let result = element || null;

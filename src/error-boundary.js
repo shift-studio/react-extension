@@ -1,5 +1,5 @@
 import React from 'react';
-import shiftBridge from '@clutch-creator/bridge';
+import clutchBridge from '@clutch-creator/bridge';
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -13,12 +13,12 @@ export default class ErrorBoundary extends React.Component {
 
   componentDidMount() {
     // Reset canvas error state
-    shiftBridge.setCanvasError(false);
+    clutchBridge.setCanvasError(false);
   }
 
   componentDidCatch(error) {
     // Pass error along to handle and set fallback UI
-    shiftBridge.setCanvasError(error);
+    clutchBridge.setCanvasError(error);
   }
 
   render() {

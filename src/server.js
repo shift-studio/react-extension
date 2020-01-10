@@ -2,7 +2,7 @@
 import ReactDOM from 'react-dom/server';
 import Html from './helpers/html';
 
-export default async function serverEntry(shiftConfig = {}) {
+export default async function serverEntry(clutchConfig = {}) {
   const {
     element,
     pathname,
@@ -11,7 +11,7 @@ export default async function serverEntry(shiftConfig = {}) {
     footerElements: defaultFooterElements,
     bodyAttributes: defaultBodyAttributes,
     htmlAttributes: defaultHtmlAttributes,
-  } = shiftConfig;
+  } = clutchConfig;
 
   // html tags and attrs
   const headElements = [...(defaultHeadElements || [])];

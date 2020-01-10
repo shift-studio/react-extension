@@ -1,17 +1,17 @@
 /* eslint-disable no-underscore-dangle */
 import { findDOMNode } from 'react-dom';
 import get from 'lodash/get';
-import shiftBridge, {
+import clutchBridge, {
   classnames,
   getUniqueClassName,
 } from '@clutch-creator/bridge';
 import shallowEqual from './helpers/shallow-equal';
-import { useShift, useShiftHooks } from './hooks';
+import { useClutch, useClutchHooks } from './hooks';
 
-export { useShift, useShiftHooks };
+export { useClutch, useClutchHooks };
 
-export default function shiftExtensionReact(WrappedComponent) {
-  class ShiftComponent extends WrappedComponent {
+export default function clutchExtensionReact(WrappedComponent) {
+  class ClutchComponent extends WrappedComponent {
     constructor(props, context) {
       super(props, context);
 
@@ -19,23 +19,23 @@ export default function shiftExtensionReact(WrappedComponent) {
       this.state = Object.assign({}, this.state);
 
       // Set flowProps references
-      const { flowProps } = this.props.shiftProps || {};
+      const { flowProps } = this.props.clutchProps || {};
       this.flowProps = flowProps || {};
     }
 
     shouldComponentUpdate(nextProps, nextState) {
       // XXX ignore user component should component update?
-      const { shiftProps = {}, ...ownProps } = this.props;
-      const { shiftProps: newShiftProps = {}, ...newOwnProps } = nextProps;
+      const { clutchProps = {}, ...ownProps } = this.props;
+      const { clutchProps: newClutchProps = {}, ...newOwnProps } = nextProps;
 
       // Update flowProps references
-      const { flowProps } = newShiftProps || {};
+      const { flowProps } = newClutchProps || {};
       this.flowProps = flowProps || {};
 
       return (
         !shallowEqual(ownProps, newOwnProps) ||
         !shallowEqual(nextState, this.state) ||
-        !shallowEqual(shiftProps.flowProps, newShiftProps.flowProps)
+        !shallowEqual(clutchProps.flowProps, newClutchProps.flowProps)
       );
     }
 
@@ -44,21 +44,24 @@ export default function shiftExtensionReact(WrappedComponent) {
         super.componentDidUpdate(prevProps, prevState, snapshot);
       }
 
-      const { shiftProps } = this.props;
-      const shiftSelection = this.getShiftSelection();
+      const { clutchProps } = this.props;
+      const clutchSelection = this.getClutchSelection();
 
       // update component master props values on bridge component
-      shiftBridge.updateComponentMasterProps(shiftSelection, this.masterProps);
+      clutchBridge.updateComponentMasterProps(
+        clutchSelection,
+        this.masterProps,
+      );
 
       // update component inbound props on ide
-      shiftBridge.updateComponentInboundProps(
-        shiftSelection,
-        shiftProps && shiftProps.flowProps,
+      clutchBridge.updateComponentInboundProps(
+        clutchSelection,
+        clutchProps && clutchProps.flowProps,
       );
 
       // update component state on ide
       if (!shallowEqual(prevState, this.state)) {
-        shiftBridge.updateComponentState(shiftSelection, this.state);
+        clutchBridge.updateComponentState(clutchSelection, this.state);
       }
     }
 
@@ -67,61 +70,65 @@ export default function shiftExtensionReact(WrappedComponent) {
         super.componentWillUnmount();
       }
 
-      shiftBridge.unregisterComponent(this.getShiftSelection());
+      clutchBridge.unregisterComponent(this.getClutchSelection());
     }
 
-    getShiftSelection(props = this.props) {
-      const { shiftProps } = props;
+    getClutchSelection(props = this.props) {
+      const { clutchProps } = props;
 
       return (
-        (shiftProps && shiftProps.selection) ||
-        get(this.masterProps, ['shiftProps', 'defaultSelection']) ||
-        (shiftProps && shiftProps.defaultSelection)
+        (clutchProps && clutchProps.selection) ||
+        get(this.masterProps, ['clutchProps', 'defaultSelection']) ||
+        (clutchProps && clutchProps.defaultSelection)
       );
     }
 
-    shiftRefUpdated = (ref) => {
+    clutchUpdateRef = (ref) => {
       const node = !ref || ref.tagName ? ref : findDOMNode(ref);
 
       if (this.node !== node) {
         this.node = node;
 
         // register element ref
-        shiftBridge.registerComponentReference(
-          this.getShiftSelection(),
+        clutchBridge.registerComponentReference(
+          this.getClutchSelection(),
           this.node,
         );
       }
     };
 
-    useShift(privateProps, props) {
+    useClutch(privateProps, props) {
       if (typeof privateProps !== 'function') {
         // eslint-disable-next-line no-console
-        console.error('First argument of useShift must be a function.');
+        console.error('First argument of useClutch must be a function.');
         return props;
       }
 
       let resultProps = privateProps(props);
-      const propsTypes = get(resultProps, ['shiftProps', 'propsTypes'], {});
+      const propsTypes = get(resultProps, ['clutchProps', 'propsTypes'], {});
 
-      // convert children to render shift children calls
+      // convert children to render clutch children calls
       resultProps = Object.entries(propsTypes).reduce(
         (acc, [key, propType]) => {
           if (propType === 'Children') {
             return {
               ...acc,
-              [key]: this.renderShiftChildren.bind(this, key, resultProps[key]),
+              [key]: this.renderClutchChildren.bind(
+                this,
+                key,
+                resultProps[key],
+              ),
             };
           }
 
           if (
-            propType === 'ShiftStyles' &&
+            propType === 'ClutchStyles' &&
             process.env.NODE_ENV !== 'production'
           ) {
             const val = resultProps[key];
 
             const identifier = getUniqueClassName(
-              this.getShiftSelection(resultProps),
+              this.getClutchSelection(resultProps),
               key,
             );
 
@@ -153,28 +160,28 @@ export default function shiftExtensionReact(WrappedComponent) {
 
       this.masterProps = Object.assign({}, resultProps);
 
-      if (!this.shiftRegistered) {
-        this.shiftRegistered = true;
+      if (!this.clutchRegistered) {
+        this.clutchRegistered = true;
 
         // initiate listener for component changes and children changes
-        shiftBridge.registerComponent(
-          this.getShiftSelection(),
-          get(this.props, ['shiftProps', 'parentSelection']),
-          get(this.props, ['shiftProps', 'masterProps']),
+        clutchBridge.registerComponent(
+          this.getClutchSelection(),
+          get(this.props, ['clutchProps', 'parentSelection']),
+          get(this.props, ['clutchProps', 'masterProps']),
           this.forceUpdate.bind(this),
           this.setState.bind(this),
         );
 
         // update component inbound props on ide
-        shiftBridge.updateComponentInboundProps(
-          this.getShiftSelection(),
+        clutchBridge.updateComponentInboundProps(
+          this.getClutchSelection(),
           this.flowProps,
         );
 
         // update component state on ide
         if (this.state) {
-          shiftBridge.updateComponentState(
-            this.getShiftSelection(),
+          clutchBridge.updateComponentState(
+            this.getClutchSelection(),
             this.state,
           );
         }
@@ -187,16 +194,16 @@ export default function shiftExtensionReact(WrappedComponent) {
       return super.render();
     }
 
-    renderShiftChildren(propName, value, flowProps, key) {
-      const selection = this.getShiftSelection();
-      const shiftProps = this.props.shiftProps || {};
+    renderClutchChildren(propName, value, flowProps, key) {
+      const selection = this.getClutchSelection();
+      const clutchProps = this.props.clutchProps || {};
       let result = value;
 
-      let childrenFlowProps = shiftProps.flowProps || {};
+      let childrenFlowProps = clutchProps.flowProps || {};
 
       if (flowProps) {
         childrenFlowProps = Object.assign({}, childrenFlowProps, flowProps);
-        shiftBridge.updateComponentOutboundProps(
+        clutchBridge.updateComponentOutboundProps(
           selection,
           propName,
           flowProps,
@@ -213,5 +220,5 @@ export default function shiftExtensionReact(WrappedComponent) {
     }
   }
 
-  return ShiftComponent;
+  return ClutchComponent;
 }
