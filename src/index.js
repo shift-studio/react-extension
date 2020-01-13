@@ -121,10 +121,7 @@ export default function clutchExtensionReact(WrappedComponent) {
             };
           }
 
-          if (
-            propType === 'ClutchStyles' &&
-            process.env.NODE_ENV !== 'production'
-          ) {
+          if (propType === 'Styles' && process.env.NODE_ENV !== 'production') {
             const val = resultProps[key];
 
             const identifier = getUniqueClassName(
