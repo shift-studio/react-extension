@@ -145,7 +145,10 @@ export default function clutchExtensionReact(WrappedComponent) {
 
       // bind functions to this instance context
       resultProps = Object.entries(resultProps).reduce((acc, [key, val]) => {
-        if (typeof val === 'function') {
+        if (
+          typeof val === 'function' &&
+          (!val.prototype || !val.prototype.isReactComponent)
+        ) {
           return {
             ...acc,
             [key]: val.bind(this),

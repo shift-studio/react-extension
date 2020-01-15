@@ -122,7 +122,10 @@ function getMergedProperties(privateProps, props) {
 
   // bind functions to this instance context
   Object.entries(resultProps).reduce((acc, [key, val]) => {
-    if (typeof val === 'function') {
+    if (
+      typeof val === 'function' &&
+      (!val.prototype || !val.prototype.isReactComponent)
+    ) {
       return {
         ...acc,
         [key]: val.bind({ masterProps, flowProps }),
