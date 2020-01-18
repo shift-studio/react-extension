@@ -6,17 +6,13 @@ import clutchBridge, {
   getUniqueClassName,
 } from '@clutch-creator/bridge';
 import shallowEqual from './helpers/shallow-equal';
-import { useClutch, useClutchHooks } from './hooks';
 
-export { useClutch, useClutchHooks };
+export * from './hooks';
 
-export default function clutchExtensionReact(WrappedComponent) {
+export default function withClutch(WrappedComponent) {
   class ClutchComponent extends WrappedComponent {
     constructor(props, context) {
       super(props, context);
-
-      // default state
-      this.state = Object.assign({}, this.state);
 
       // Set flowProps references
       const { flowProps } = this.props.clutchProps || {};
@@ -58,11 +54,6 @@ export default function clutchExtensionReact(WrappedComponent) {
         clutchSelection,
         clutchProps && clutchProps.flowProps,
       );
-
-      // update component state on ide
-      if (!shallowEqual(prevState, this.state)) {
-        clutchBridge.updateComponentState(clutchSelection, this.state);
-      }
     }
 
     componentWillUnmount() {
@@ -160,6 +151,9 @@ export default function clutchExtensionReact(WrappedComponent) {
 
       this.masterProps = Object.assign({}, resultProps);
 
+      // set ref
+      resultProps.ref = this.clutchUpdateRef;
+
       if (!this.clutchRegistered) {
         this.clutchRegistered = true;
 
@@ -168,8 +162,6 @@ export default function clutchExtensionReact(WrappedComponent) {
           this.getClutchSelection(),
           get(this.props, ['clutchProps', 'parentSelection']),
           get(this.props, ['clutchProps', 'masterProps']),
-          this.forceUpdate.bind(this),
-          this.setState.bind(this),
         );
 
         // update component inbound props on ide
@@ -177,14 +169,6 @@ export default function clutchExtensionReact(WrappedComponent) {
           this.getClutchSelection(),
           this.flowProps,
         );
-
-        // update component state on ide
-        if (this.state) {
-          clutchBridge.updateComponentState(
-            this.getClutchSelection(),
-            this.state,
-          );
-        }
       }
 
       return resultProps;

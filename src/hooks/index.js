@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
-import { useState, useCallback, useEffect, useRef, useReducer } from 'react';
+import { useEffect, useRef } from 'react';
+import { findDOMNode } from 'react-dom';
 import get from 'lodash/get';
 import clutchBridge, {
   classnames,
@@ -11,58 +12,6 @@ const getClutchSelection = ({ clutchProps }) =>
 
 const getClutchParentSelection = ({ clutchProps }) =>
   (clutchProps && clutchProps.parentSelection) || {};
-
-const updateComponentState = (newState, key, selection) => {
-  const ideState = clutchBridge.getComponentState(selection) || {};
-  const updatedIdeState = { ...ideState, [key]: newState };
-
-  clutchBridge.updateComponentState(selection, updatedIdeState);
-};
-
-function useClutchReducer(props, key, reducer, initialState) {
-  if (key === undefined) {
-    throw new Error('No key provided for useClutchReducer');
-  }
-  const [state, dispatch] = useReducer(reducer, initialState);
-
-  useEffect(() => {
-    const selection = getClutchSelection(props);
-
-    // Set the IDE's state
-    updateComponentState(state, key, selection);
-  }, [state]);
-
-  return [state, dispatch];
-}
-
-function useClutchState(props, key, initialState) {
-  if (key === undefined) {
-    throw new Error('No key provided for useClutchState');
-  }
-  const [state, setState] = useState(initialState);
-
-  useEffect(() => {
-    const selection = getClutchSelection(props);
-
-    // Set the IDE's state
-    updateComponentState(state, key, selection);
-  }, [state]);
-
-  return [state, setState];
-}
-
-function useClutchRef(props, initialValue) {
-  const selection = getClutchSelection(props);
-  const ref = useRef(initialValue);
-
-  useEffect(() => {
-    if (ref) {
-      clutchBridge.registerComponentReference(selection, ref.current);
-    }
-  }, [ref]);
-
-  return ref;
-}
 
 const renderClutchChildren = (clutchProps, propName, value, flowProps, key) => {
   const selection = clutchProps.selection;
@@ -84,6 +33,12 @@ const renderClutchChildren = (clutchProps, propName, value, flowProps, key) => {
 };
 
 function getMergedProperties(privateProps, props) {
+  if (typeof privateProps !== 'function') {
+    // eslint-disable-next-line no-console
+    console.error('First argument of useClutch must be a function.');
+    return props;
+  }
+
   const resultProps = privateProps(props);
   const propsTypes = get(resultProps, ['clutchProps', 'propsTypes'], {});
   const clutchProps = (resultProps && resultProps.clutchProps) || {};
@@ -106,13 +61,16 @@ function getMergedProperties(privateProps, props) {
     if (propType === 'Styles' && process.env.NODE_ENV !== 'production') {
       const val = resultProps[key];
 
+      const identifier = getUniqueClassName(
+        this.getClutchSelection(resultProps),
+        key,
+      );
+
       return {
         ...acc,
         [key]: {
-          className: classnames(
-            val && val.className,
-            getUniqueClassName(this.getClutchSelection(resultProps), key),
-          ),
+          className: classnames(val && val.className, identifier),
+          style: (val && val.style) || {},
         },
       };
     }
@@ -135,25 +93,22 @@ function getMergedProperties(privateProps, props) {
     return acc;
   }, resultProps);
 
-  return resultProps;
-}
+  // set ref
+  resultProps.ref = (ref) => {
+    const node = !ref || ref.tagName ? ref : findDOMNode(ref);
 
-/**
- * useClutchHooks - Returns react hooks proxy connected to clutch ide
- *
- * @param {Function} privateProps - private properties function
- * @param {Object} props - react props
- *
- * @returns {Object} object with hooks
- */
-export function useClutchHooks(privateProps, props) {
-  const result = getMergedProperties(privateProps, props);
+    if (this.node !== node) {
+      this.node = node;
 
-  return {
-    useRef: useClutchRef.bind(undefined, result),
-    useState: useClutchState.bind(undefined, result),
-    useReducer: useClutchReducer.bind(undefined, result),
+      // register element ref
+      clutchBridge.registerComponentReference(
+        this.getClutchSelection(),
+        this.node,
+      );
+    }
   };
+
+  return resultProps;
 }
 
 /**
@@ -164,24 +119,28 @@ export function useClutchHooks(privateProps, props) {
  *
  * @returns {Object} resulting merged props
  */
+// eslint-disable-next-line import/prefer-default-export
 export function useClutch(privateProps, props) {
   const result = getMergedProperties(privateProps, props);
   const selection = getClutchSelection(result);
   const parentSelection = getClutchParentSelection(result);
-
-  // Force update
-  const [, forceState] = useState();
-  const forceUpdate = useCallback(() => forceState({}), []);
+  const masterProps = get(this.props, ['clutchProps', 'masterProps']);
   const { clutchProps } = selection;
+
+  // Ref
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (ref) {
+      clutchBridge.registerComponentReference(selection, ref.current);
+    }
+  }, [ref]);
+
+  result.ref = ref;
 
   useEffect(() => {
     // initiate listener for component changes and children changes
-    clutchBridge.registerComponent(
-      selection,
-      parentSelection,
-      forceUpdate,
-      forceState,
-    );
+    clutchBridge.registerComponent(selection, parentSelection, masterProps);
 
     // update component inbound props on ide
     clutchBridge.updateComponentInboundProps(
