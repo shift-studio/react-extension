@@ -38,13 +38,13 @@ function getMergedProperties(privateProps, props) {
     return props;
   }
 
-  const resultProps = privateProps(props);
+  let resultProps = privateProps(props);
   const propsTypes = get(resultProps, ['clutchProps', 'propsTypes'], {});
   const clutchProps = (resultProps && resultProps.clutchProps) || {};
   const { masterProps, flowProps } = clutchProps;
 
   // convert children to render clutch children calls
-  Object.entries(propsTypes).reduce((acc, [key, propType]) => {
+  resultProps = Object.entries(propsTypes).reduce((acc, [key, propType]) => {
     if (propType === 'Children') {
       return {
         ...acc,
@@ -78,7 +78,7 @@ function getMergedProperties(privateProps, props) {
   }, resultProps);
 
   // bind functions to this instance context
-  Object.entries(resultProps).reduce((acc, [key, val]) => {
+  resultProps = Object.entries(resultProps).reduce((acc, [key, val]) => {
     if (
       typeof val === 'function' &&
       (!val.prototype || !val.prototype.isReactComponent)
