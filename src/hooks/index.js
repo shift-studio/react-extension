@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 import { useEffect, useRef } from 'react';
-import { findDOMNode } from 'react-dom';
 import get from 'lodash/get';
 import clutchBridge, {
   classnames,
@@ -62,7 +61,7 @@ function getMergedProperties(privateProps, props) {
       const val = resultProps[key];
 
       const identifier = getUniqueClassName(
-        this.getClutchSelection(resultProps),
+        getClutchSelection(resultProps),
         key,
       );
 
@@ -93,21 +92,6 @@ function getMergedProperties(privateProps, props) {
     return acc;
   }, resultProps);
 
-  // set ref
-  resultProps.ref = (ref) => {
-    const node = !ref || ref.tagName ? ref : findDOMNode(ref);
-
-    if (this.node !== node) {
-      this.node = node;
-
-      // register element ref
-      clutchBridge.registerComponentReference(
-        this.getClutchSelection(),
-        this.node,
-      );
-    }
-  };
-
   return resultProps;
 }
 
@@ -124,7 +108,7 @@ export function useClutch(privateProps, props) {
   const result = getMergedProperties(privateProps, props);
   const selection = getClutchSelection(result);
   const parentSelection = getClutchParentSelection(result);
-  const masterProps = get(this.props, ['clutchProps', 'masterProps']);
+  const masterProps = get(props, ['clutchProps', 'masterProps']);
   const { clutchProps } = selection;
 
   // Ref
