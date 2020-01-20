@@ -20,12 +20,9 @@ export default async function serverEntry(clutchConfig = {}) {
   const htmlAttributes = Object.assign({}, defaultHtmlAttributes);
 
   try {
-    // initial result
-    let result = element || null;
-
     // hooks options
     const options = {
-      element,
+      element: element || null,
       pathname: pathname || '/',
       headElements,
       footerElements,
@@ -47,12 +44,12 @@ export default async function serverEntry(clutchConfig = {}) {
 
       if (serverHooks.preRender) {
         // eslint-disable-next-line
-        result = await serverHooks.preRender(result, options);
+        options.element = await serverHooks.preRender(options);
       }
     }
 
     // SSR rendering
-    const bodyContent = ReactDOM.renderToString(result);
+    const bodyContent = ReactDOM.renderToString(options.element);
 
     // server post render hooks
     for (let i = 0; i < hooks.length; i += 1) {
@@ -60,7 +57,7 @@ export default async function serverEntry(clutchConfig = {}) {
 
       if (serverHooks.postRender) {
         // eslint-disable-next-line
-        result = await serverHooks.postRender(options);
+        await serverHooks.postRender(options);
       }
     }
 
