@@ -15,7 +15,7 @@ const getClutchParentSelection = ({ clutchProps }) =>
   (clutchProps && clutchProps.parentSelection) || {};
 
 const renderClutchChildren = (clutchProps, propName, value, flowProps, key) => {
-  const selection = clutchProps.selection;
+  const selection = getClutchSelection({ clutchProps });
   let result = value;
   let childrenFlowProps = clutchProps.flowProps || {};
 
