@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { useEffect, useRef } from 'react';
+import { useEffect, useCallback } from 'react';
 import get from 'lodash/get';
 import clutchBridge, {
   classnames,
@@ -7,7 +7,9 @@ import clutchBridge, {
 } from '@clutch-creator/bridge';
 
 const getClutchSelection = ({ clutchProps }) =>
-  (clutchProps && clutchProps.selection) || {};
+  (clutchProps && clutchProps.selection) ||
+  (clutchProps && clutchProps.defaultSelection) ||
+  {};
 
 const getClutchParentSelection = ({ clutchProps }) =>
   (clutchProps && clutchProps.parentSelection) || {};
@@ -109,33 +111,35 @@ export function useClutch(privateProps, props) {
   const selection = getClutchSelection(result);
   const parentSelection = getClutchParentSelection(result);
   const masterProps = get(props, ['clutchProps', 'masterProps']);
-  const { clutchProps } = selection;
+  const { clutchProps } = result;
+
+  // initiate listener for component changes and children changes
+  const register = useCallback(() => {
+    clutchBridge.registerComponent(selection, parentSelection, masterProps);
+  }, []);
+
+  useEffect(
+    () => () => {
+      clutchBridge.unregisterComponent(selection);
+    },
+    [],
+  );
+
+  register();
 
   // Ref
-  const ref = useRef(null);
+  result.ref = (ref) => {
+    clutchBridge.registerComponentReference(selection, ref);
+  };
 
-  useEffect(() => {
-    if (ref) {
-      clutchBridge.registerComponentReference(selection, ref.current);
-    }
-  }, [ref]);
+  // update component inbound props on ide
+  clutchBridge.updateComponentInboundProps(
+    selection,
+    clutchProps && clutchProps.flowProps,
+  );
 
-  result.ref = ref;
-
-  useEffect(() => {
-    // initiate listener for component changes and children changes
-    clutchBridge.registerComponent(selection, parentSelection, masterProps);
-
-    // update component inbound props on ide
-    clutchBridge.updateComponentInboundProps(
-      selection,
-      clutchProps && clutchProps.flowProps,
-    );
-
-    return () => {
-      clutchBridge.unregisterComponent(selection);
-    };
-  }, []);
+  // remove clutchProps prop
+  delete result.clutchProps;
 
   return result;
 }

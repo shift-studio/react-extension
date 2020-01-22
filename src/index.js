@@ -171,6 +171,9 @@ export default function withClutch(WrappedComponent) {
         );
       }
 
+      // remove clutchProps prop
+      delete resultProps.clutchProps;
+
       return resultProps;
     }
 
