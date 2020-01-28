@@ -1,6 +1,6 @@
 {
   "name": "@clutch-creator/react-extension",
-  "version": "0.0.10",
+  "version": "1.0.0",
   "description": "Clutch extension for react components",
   "main": "index.js",
   "scripts": {
