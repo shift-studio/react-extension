@@ -47,7 +47,7 @@ export default async function clientEntry(clutchConfig = {}) {
 
       if (clientHooks.postRender) {
         // eslint-disable-next-line
-        result = await clientHooks.postRender(options);
+        await clientHooks.postRender(options);
       }
     }
   } catch (err) {
