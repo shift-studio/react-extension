@@ -1,5 +1,4 @@
 /* eslint-disable no-underscore-dangle */
-import { findDOMNode } from 'react-dom';
 import get from 'lodash/get';
 import clutchBridge, {
   classnames,
@@ -74,20 +73,6 @@ export default function withClutch(WrappedComponent) {
       );
     }
 
-    clutchUpdateRef = (ref) => {
-      const node = !ref || ref.tagName ? ref : findDOMNode(ref);
-
-      if (this.node !== node) {
-        this.node = node;
-
-        // register element ref
-        clutchBridge.registerComponentReference(
-          this.getClutchSelection(),
-          this.node,
-        );
-      }
-    };
-
     useClutch(privateProps, props) {
       if (typeof privateProps !== 'function') {
         // eslint-disable-next-line no-console
@@ -150,9 +135,6 @@ export default function withClutch(WrappedComponent) {
       }, resultProps);
 
       this.masterProps = Object.assign({}, resultProps);
-
-      // set ref
-      resultProps.ref = this.clutchUpdateRef;
 
       if (!this.clutchRegistered) {
         this.clutchRegistered = true;

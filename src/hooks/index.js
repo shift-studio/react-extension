@@ -127,11 +127,6 @@ export function useClutch(privateProps, props) {
 
   register();
 
-  // Ref
-  result.ref = (ref) => {
-    clutchBridge.registerComponentReference(selection, ref);
-  };
-
   // update component inbound props on ide
   clutchBridge.updateComponentInboundProps(
     selection,
