@@ -2,7 +2,6 @@
 import { AppContainer } from 'react-hot-loader';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ErrorBoundary from './error-boundary';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -13,11 +12,7 @@ export default async function clientEntry(clutchConfig = {}) {
     let result = element || null;
 
     if (isDevelopment) {
-      result = (
-        <AppContainer>
-          <ErrorBoundary>{result}</ErrorBoundary>
-        </AppContainer>
-      );
+      result = <AppContainer>{result}</AppContainer>;
     }
 
     // Run entry definitions middleware

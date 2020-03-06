@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/clutch-creator/react-extension#readme",
   "peerDependencies": {
-    "@clutch-creator/bridge": "^0.0.1",
     "react": ">=16.6.0",
     "react-dom": ">=16.6.0"
   },
@@ -33,7 +32,6 @@
     "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/preset-env": "^7.1.6",
     "@babel/preset-react": "^7.0.0",
-    "@clutch-creator/bridge": "^0.0.1",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.4",
     "eslint": "^5.9.0",
@@ -56,9 +54,6 @@
   "dependencies": {
     "@babel/runtime": "^7.6.3",
     "@types/react": ">=16.6.0",
-    "classnames": "^2.2.6",
-    "history": "^4.6.1",
-    "lodash": "^4.17.15",
     "react-hot-loader": "^4.12.15"
   }
 }

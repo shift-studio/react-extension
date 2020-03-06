@@ -5,7 +5,6 @@ const nodeExternals = require('webpack-node-externals');
 module.exports = {
   mode: 'production',
   entry: {
-    index: './src/index.js',
     client: './src/client.js',
     server: './src/server.js',
   },
