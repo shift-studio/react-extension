@@ -1,6 +1,6 @@
-# Clutch Extension React
+# Clutch React Extension
 
-This extension allows user created components to interact with Clutch IDE with minimal interface.
+Default React client and server entry definitions with support for Clutch hooks.
 
 ## Installation
 
